@@ -1,0 +1,11 @@
+list_x86_64
+===========
+
+Here is a very basic implementation of a linked list using x86_64 assembly language.
+The syntax used is the one of NASM.
+
+This library does not claim to be quicker than one or another implementation. However, it does provide a working implementation.
+
+Every advice is welcome in order to improve this implementation.
+
+This library is covered by the MIT license. You should read the LICENSE file to understand what is implied.
