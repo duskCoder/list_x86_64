@@ -161,3 +161,5 @@ list_apply: ;; {{{
     ret
 
 ;; }}}
+
+; vim:ft=nasm
