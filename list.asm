@@ -56,12 +56,9 @@ section .text
 
 list_init: ;; {{{
 
-    enter 0, 0
     mov QWORD [rdi + list_t.first], 0 ; first = NULL
     mov DWORD [rdi + list_t.size], 0 ; size = 0
 
-
-    leave
     ret
 
 ;; }}}
