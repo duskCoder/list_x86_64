@@ -20,8 +20,6 @@
 ;; OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 ;; THE SOFTWARE.
 
-[BITS 64]
-
 extern malloc
 
 ;; initializes the list stored at address $rdi with default values
