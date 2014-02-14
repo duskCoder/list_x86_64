@@ -23,39 +23,7 @@
 extern malloc
 extern free
 
-;; initializes the list stored at address $rdi with default values
-global list_init:function
-
-;; dynamically allocate a new list and return its address via $rax. If
-;; the dynamic allocation unlikely fails, $rax will contain a null pointer
-global list_new_raw:function
-
-;; same as list_new_raw, unless the list is initialized with default values
-global list_new:function
-
-;; remove every element of the list pointed to by $rip.
-;; the elements are freed using free() from the libc
-global list_clear:function
-
-;; create a new element (using dynamic allocation) at the end of the list
-;; stored at address $rdi. the created element will contain the value of $rsi
-;; if, unlikely, the allocation fails, $rax will contain -1.
-;; otherwise (on success), $rax will be set to 0
-global list_append:function
-
-;; for every element in the list stored at address $rdi, call the function
-;; pointed to by $rsi with the value of the current element.
-global list_apply:function
-
-struc list_t
-    .first: resq 1
-    .size:  resd 1
-endstruc
-
-struc elem_t
-    .next:  resq 1
-    .value: resq 1
-endstruc
+%include "public.asm"
 
 section .text
 
