@@ -21,6 +21,7 @@
 ;; THE SOFTWARE.
 
 extern malloc
+extern free
 
 ;; initializes the list stored at address $rdi with default values
 global list_init:function
@@ -31,6 +32,10 @@ global list_new_raw:function
 
 ;; same as list_new_raw, unless the list is initialized with default values
 global list_new:function
+
+;; remove every element of the list pointed to by $rip.
+;; the elements are freed using free() from the libc
+global list_clear:function
 
 ;; create a new element (using dynamic allocation) at the end of the list
 ;; stored at address $rdi. the created element will contain the value of $rsi
@@ -83,6 +88,41 @@ list_new_raw: ;; {{{
     mov rdi, list_t_size
     call malloc
 
+    leave
+    ret
+
+;; }}}
+list_clear: ;; {{{
+
+    enter 0, 0
+
+    mov ecx, [rdi + list_t.size] ; load the size of the list into the counter
+
+    test ecx, ecx
+    je .end
+
+    mov rsi, QWORD [rdi + list_t.first]
+
+    ; the list is reset to its initial state
+    mov DWORD [rdi + list_t.size], 0
+    mov QWORD [rdi + list_t.first], 0
+
+    .loop:
+    push QWORD [rsi + elem_t.next]
+    push rcx
+
+    mov rdi, rsi
+    call free
+
+    pop rcx
+    pop rsi
+
+    dec ecx
+
+    test ecx, ecx
+    jne .loop
+
+    .end
     leave
     ret
 
