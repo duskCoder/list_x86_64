@@ -122,7 +122,7 @@ list_clear: ;; {{{
     test ecx, ecx
     jne .loop
 
-    .end
+    .end:
     leave
     ret
 
