@@ -42,14 +42,24 @@ global list_append:function
 ;; pointed to by $rsi with the value of the current element.
 global list_apply:function
 
+struc list_t
+    .first: resq 1
+    .size:  resd 1
+endstruc
+
+struc elem_t
+    .next:  resq 1
+    .value: resq 1
+endstruc
+
 section .text
 
 list_init: ;; {{{
 
     enter 0, 0
+    mov QWORD [rdi + list_t.first], 0 ; first = NULL
+    mov DWORD [rdi + list_t.size], 0 ; size = 0
 
-    mov QWORD [rdi], 0 ; first = NULL
-    mov DWORD [rdi + 8], 0 ; size = 0
 
     leave
     ret
@@ -73,7 +83,7 @@ list_new_raw: ;; {{{
 
     enter 0, 0
 
-    mov rdi, 0xc
+    mov rdi, list_t_size
     call malloc
 
     leave
@@ -87,7 +97,7 @@ list_append: ;; {{{
     mov [rsp], rdi
     mov [rsp + 8], rsi
 
-    mov rdi, 0x10
+    mov rdi, elem_t_size
     call malloc
 
     test rax, rax
@@ -98,17 +108,17 @@ list_append: ;; {{{
     .malloc_succeed:
     ; set the new element
     mov rsi, QWORD [rsp + 8]
-    mov QWORD [rax], 0
-    mov QWORD [rax + 8], rsi
+    mov QWORD [rax + elem_t.next], 0
+    mov QWORD [rax + elem_t.value], rsi
 
     mov rdi, [rsp]
-    mov ecx, [rdi + 8]
+    mov ecx, [rdi + list_t.size]
 
     .loop:
     test ecx, ecx
     je .set_elem
     dec ecx
-    mov rdi, QWORD [rdi]
+    mov rdi, QWORD [rdi + elem_t.next]
     jmp .loop
 
     .set_elem:
@@ -117,7 +127,7 @@ list_append: ;; {{{
 
     ; increment size
     mov rdi, QWORD [rsp]
-    inc DWORD [rdi + 8]
+    inc DWORD [rdi + list_t.size]
 
     xor rax, rax
 
@@ -132,7 +142,7 @@ list_apply: ;; {{{
 
     mov QWORD [rsp], rsi
 
-    mov ecx, DWORD [rdi + 8]
+    mov ecx, DWORD [rdi + list_t.size]
 
     .loop:
     test ecx, ecx
@@ -145,7 +155,7 @@ list_apply: ;; {{{
     mov DWORD [rsp + 8], ecx
     mov QWORD [rsp + 0xc], rdi
 
-    mov rdi, QWORD [rdi + 8]
+    mov rdi, QWORD [rdi + elem_t.value]
     call QWORD [rsp]
 
     ; get back the registers
