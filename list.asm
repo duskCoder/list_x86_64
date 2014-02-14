@@ -60,12 +60,12 @@ list_new: ;; {{{
     call list_new_raw
 
     test rax, rax
-    je list_new_end
+    je .end
 
     mov rdi, rax
     call list_init
 
-    list_new_end:
+    .end:
     ret
 
 ;; }}}
@@ -91,11 +91,11 @@ list_append: ;; {{{
     call malloc
 
     test rax, rax
-    jne list_append_malloc_succeed
+    jne .malloc_succeed
     mov rax, -1
-    jmp list_append_end
+    jmp .end
 
-    list_append_malloc_succeed:
+    .malloc_succeed:
     ; set the new element
     mov rsi, QWORD [rsp + 8]
     mov QWORD [rax], 0
@@ -104,14 +104,14 @@ list_append: ;; {{{
     mov rdi, [rsp]
     mov ecx, [rdi + 8]
 
-    list_append_loop:
+    .loop:
     test ecx, ecx
-    je list_append_set_elem
+    je .set_elem
     dec ecx
     mov rdi, QWORD [rdi]
-    jmp list_append_loop
+    jmp .loop
 
-    list_append_set_elem:
+    .set_elem:
     ; set the next element
     mov [rdi], rax
 
@@ -121,7 +121,7 @@ list_append: ;; {{{
 
     xor rax, rax
 
-    list_append_end:
+    .end:
     leave
     ret
 
@@ -134,9 +134,9 @@ list_apply: ;; {{{
 
     mov ecx, DWORD [rdi + 8]
 
-    list_apply_loop:
+    .loop:
     test ecx, ecx
-    je list_apply_end
+    je .end
     dec ecx
     ; elem = list->first or elem = elem->next
     mov rdi, QWORD [rdi]
@@ -152,9 +152,9 @@ list_apply: ;; {{{
     mov ecx, DWORD [rsp + 8]
     mov rdi, QWORD [rsp + 0xc]
 
-    jmp list_apply_loop
+    jmp .loop
 
-    list_apply_end:
+    .end:
     leave
     ret
 
