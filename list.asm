@@ -23,24 +23,24 @@
 extern malloc
 
 ;; initializes the list stored at address $rdi with default values
-global list_init
+global list_init:function
 
 ;; dynamically allocate a new list and return its address via $rax. If
 ;; the dynamic allocation unlikely fails, $rax will contain a null pointer
-global list_new_raw
+global list_new_raw:function
 
 ;; same as list_new_raw, unless the list is initialized with default values
-global list_new
+global list_new:function
 
 ;; create a new element (using dynamic allocation) at the end of the list
 ;; stored at address $rdi. the created element will contain the value of $rsi
 ;; if, unlikely, the allocation fails, $rax will contain -1.
 ;; otherwise (on success), $rax will be set to 0
-global list_append
+global list_append:function
 
 ;; for every element in the list stored at address $rdi, call the function
 ;; pointed to by $rsi with the value of the current element.
-global list_apply
+global list_apply:function
 
 section .text
 
