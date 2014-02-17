@@ -95,6 +95,19 @@ list_clear: ;; {{{
     ret
 
 ;; }}}
+
+%macro rethrow_create_element 0
+    mov rdi, elem_t_size
+    call malloc
+
+    test rax, rax
+    jne %%malloc_succeed
+    mov rax, -1
+    jmp .end
+
+    %%malloc_succeed
+%endmacro
+
 list_append: ;; {{{
 
     enter 0x18, 0
@@ -102,15 +115,8 @@ list_append: ;; {{{
     mov [rsp], rdi
     mov [rsp + 8], rsi
 
-    mov rdi, elem_t_size
-    call malloc
+    rethrow_create_element
 
-    test rax, rax
-    jne .malloc_succeed
-    mov rax, -1
-    jmp .end
-
-    .malloc_succeed:
     ; set the new element
     mov rsi, QWORD [rsp + 8]
     mov QWORD [rax + elem_t.next], 0
@@ -135,6 +141,64 @@ list_append: ;; {{{
     inc DWORD [rdi + list_t.size]
 
     xor rax, rax
+
+    .end:
+    leave
+    ret
+
+;; }}}
+list_insert: ;; {{{
+
+    enter 0, 0
+
+    cmp edx, DWORD [rdi + list_t.size]
+    jg .error
+
+    inc DWORD [rdi + list_t.size]
+
+    push rdx
+    push rsi
+    push rdi
+    rethrow_create_element
+    pop rdi
+    pop rsi
+    pop rcx
+
+    ; set the element
+    mov QWORD [rax + elem_t.value], rsi
+
+    test ecx, ecx
+    jnz .insert
+
+    ; this will be the first element
+    mov r8, QWORD [rdi + list_t.first]
+    mov QWORD [rax + elem_t.next], r8
+    mov QWORD [rdi + list_t.first], rax
+
+    jmp .success
+
+    ; this is not the first element
+    .insert:
+    mov rdi, QWORD [rdi + list_t.first]
+
+    .loop:
+    dec ecx
+    test ecx, ecx
+    jz .loop_ended
+    mov rdi, QWORD [rdi + elem_t.next]
+    jmp .loop
+
+    .loop_ended:
+    mov r8, QWORD [rdi + elem_t.next]
+    mov QWORD [rax + elem_t.next], r8
+    mov QWORD [rdi + elem_t.next], rax
+
+    .success:
+    xor rax, rax
+    jmp .end
+
+    .error:
+    mov rax, -1
 
     .end:
     leave

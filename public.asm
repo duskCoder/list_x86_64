@@ -40,6 +40,10 @@ global list_clear:function
 ;; otherwise (on success), $rax will be set to 0
 global list_append:function
 
+;; like list_append but instead of adding at the end of the list, this
+;; function adds at the position $rdx
+global list_insert:function
+
 ;; for every element in the list stored at address $rdi, call the function
 ;; pointed to by $rsi with the value of the current element.
 global list_apply:function
